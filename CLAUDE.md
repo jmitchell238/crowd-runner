@@ -53,4 +53,9 @@ planning and verification only.
 
 - Preserve existing UI layouts and saved-game compatibility (don't rename
   `ccr_*` keys).
+- The game is a PWA hosted at https://jmitchell238.github.io/crowd-runner/
+  (repo jmitchell238/crowd-runner, Pages from main). Any bead that changes
+  files the browser loads (index.html, js/*, manifest, icons) MUST also bump
+  `const CACHE = 'ccr-vN'` in sw.js, or installed PWAs keep serving the old
+  cached version. New browser-loaded files must be added to sw.js precache.
 - After completing the requested task, STOP — no unsolicited refactors.
