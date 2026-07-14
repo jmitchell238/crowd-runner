@@ -1,0 +1,163 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Crowd Clash Runner</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1520;
+    font-family: system-ui, Segoe UI, Arial, sans-serif; color: #fff;
+    touch-action: none; user-select: none; -webkit-user-select: none; }
+  /* 16:9 (landscape) / 9:16 (portrait) stage, letterboxed & centered */
+  #stage { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    overflow: hidden; background: #35c1e8;
+    box-shadow: 0 0 44px rgba(0,0,0,.55); }
+  canvas { display: block; cursor: grab; }
+  canvas.dragging { cursor: grabbing; }
+  #hud { position: absolute; top: 10px; left: 0; right: 0; text-align: center;
+    pointer-events: none; text-shadow: 0 2px 5px rgba(0,0,0,.35); }
+  #levelLabel { font-size: 28px; font-weight: 800; }
+  #restartBtn { position: absolute; top: 12px; right: 14px; width: 52px; height: 52px;
+    border: none; border-radius: 50%; background: #ff7a1a; color: #fff;
+    font-size: 28px; font-weight: 800; cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,.3); z-index: 5; }
+  #restartBtn:hover { background: #ff8f3d; }
+  #coinHud { position: absolute; top: 16px; left: 14px; background: rgba(0,0,0,.28);
+    border-radius: 20px; padding: 7px 16px; font-size: 19px; font-weight: 800;
+    color: #ffd23e; z-index: 5; }
+  #powerLabel { font-size: 16px; font-weight: 700; color: #ffe9a8; }
+
+  /* ------------------------------------------------ lobby & tab bar */
+  .lobby { position: absolute; inset: 0; display: flex; flex-direction: column;
+    background: rgba(10,40,60,.8); z-index: 10; }
+  #lobbyHead { display: flex; justify-content: center; gap: 26px; padding: 10px;
+    font-size: 19px; font-weight: 800; color: #ffd23e;
+    text-shadow: 0 2px 5px rgba(0,0,0,.4); }
+  .page { flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+    align-items: center; text-align: center; padding: 4px 16px 20px; }
+  .page h1 { font-size: 36px; margin: 14px 0 2px; text-shadow: 0 3px 8px rgba(0,0,0,.4); }
+  .page h2 { font-size: 26px; margin: 8px 0 4px; text-shadow: 0 3px 8px rgba(0,0,0,.4); }
+  .page p { opacity: .95; margin: 4px 0 10px; max-width: 520px; font-size: 15px;
+    line-height: 1.4; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  .page .small { font-size: 12.5px; opacity: .8; }
+  .page button { cursor: pointer; font-size: 18px; font-weight: 800;
+    padding: 11px 30px; border: none; border-radius: 30px;
+    background: #ffd23e; color: #4a3000; margin: 6px; min-width: 210px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.3); }
+  .page button:hover { background: #ffdf6e; }
+  .page button:disabled { background: #9a9a9a; color: #e5e5e5; cursor: default;
+    box-shadow: none; }
+  #homeLevel { font-size: 22px; font-weight: 800; color: #ffe9a8; margin: 2px 0; }
+  #homeMsg b { color: #ffd23e; }
+  #btnPlay { font-size: 22px; padding: 15px 56px; margin-top: 10px; }
+  button.danger { background: #e05252; color: #fff; }
+  button.danger:hover { background: #ea6b6b; }
+  #tabbar { display: flex; background: rgba(8,25,40,.95);
+    border-top: 1px solid rgba(255,255,255,.15); }
+  #tabbar button { flex: 1; background: none; border: none; color: #cfe3ef;
+    font-size: 12px; font-weight: 700; padding: 8px 0 10px; cursor: pointer;
+    position: relative; }
+  #tabbar button .ico { display: block; font-size: 22px; margin-bottom: 2px; }
+  #tabbar button.active { color: #ffd23e; background: rgba(255,255,255,.07); }
+  #dailyDot { position: absolute; top: 6px; right: 26%; width: 10px; height: 10px;
+    border-radius: 50%; background: #ff4747; display: none; }
+
+  /* ------------------------------------------------ shop page */
+  #shop { margin: 4px 0 0; display: flex; flex-direction: column;
+    align-items: center; }
+  #shopCoins { font-size: 17px; font-weight: 800; color: #ffd23e; margin-bottom: 6px;
+    text-shadow: 0 2px 5px rgba(0,0,0,.4); }
+  #shopItems { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    max-width: 660px; }
+  .shopItem { background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.3);
+    border-radius: 12px; padding: 8px 10px; width: 148px; }
+  .shopItem h4 { margin: 0 0 2px; font-size: 13.5px; }
+  .shopItem .lv { opacity: .75; font-weight: 600; font-size: 11px; }
+  .shopItem .eff { font-size: 11.5px; opacity: .92; margin-bottom: 6px;
+    min-height: 42px; line-height: 1.3; }
+  .shopItem button { min-width: 0; width: 100%; padding: 6px 0; font-size: 13px;
+    margin: 0; }
+
+  /* ------------------------------------------------ daily page */
+  #dailyGrid { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    max-width: 560px; margin: 8px 0; }
+  .dayCard { width: 66px; padding: 8px 2px; border-radius: 10px; font-size: 12px;
+    background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.25); }
+  .dayCard .amt { font-weight: 800; color: #ffd23e; font-size: 12.5px; }
+  .dayCard.claimed { opacity: .45; border-color: #3ee06e; }
+  .dayCard.today { border-color: #ffd23e; background: rgba(255,210,62,.18); }
+
+  /* ------------------------------------------------ settings page */
+  #statsBox { background: rgba(255,255,255,.08); border-radius: 12px;
+    padding: 10px 24px; margin: 6px 0 10px; font-size: 14px; line-height: 1.7; }
+  #statsBox b { color: #ffd23e; }
+
+  .hidden { display: none !important; }
+</style>
+
+<div id="stage">
+<canvas id="cv"></canvas>
+
+<div id="hud">
+  <div id="levelLabel">Level 1</div>
+  <div id="powerLabel" style="display:none"></div>
+</div>
+<div id="coinHud">&#129689; 0</div>
+<button id="restartBtn" title="Restart level">&#8635;</button>
+
+<div id="lobby" class="lobby">
+  <div id="lobbyHead">
+    <span id="lobbyCoins">&#129689; 0</span>
+    <span id="lobbyStars"></span>
+  </div>
+
+  <div class="page" id="pageHome">
+    <h1>Crowd Clash Runner</h1>
+    <div id="homeLevel">Level 1</div>
+    <p id="homeMsg"></p>
+    <button id="btnPlay">Play</button>
+    <p class="small">Drag with the mouse (or &larr; &rarr; / A D) to steer.
+       Dodge saws &amp; spikes, grab &#9876; crates for power, and smash the
+       bonus walls after the finish line!</p>
+  </div>
+
+  <div class="page hidden" id="pageShop">
+    <h2>&#128722; Shop</h2>
+    <div id="shop"></div>
+  </div>
+
+  <div class="page hidden" id="pageDaily">
+    <h2>&#128197; Daily Check-in</h2>
+    <p class="small">Come back every day for a bigger reward &mdash; miss a day
+       and the streak starts over!</p>
+    <div id="dailyGrid"></div>
+    <button id="btnClaim">Claim</button>
+  </div>
+
+  <div class="page hidden" id="pageSettings">
+    <h2>&#9881;&#65039; Settings</h2>
+    <div id="statsBox"></div>
+    <button id="btnSound">Sound: On</button>
+    <button id="btnReset" class="danger">Reset all progress</button>
+    <p class="small">Crowd Clash Runner</p>
+  </div>
+
+  <nav id="tabbar">
+    <button id="tabHome" class="active"><span class="ico">&#127968;</span>Play</button>
+    <button id="tabShop"><span class="ico">&#128722;</span>Shop</button>
+    <button id="tabDaily"><span class="ico">&#128197;</span>Daily<span id="dailyDot"></span></button>
+    <button id="tabSettings"><span class="ico">&#9881;&#65039;</span>Settings</button>
+  </nav>
+</div>
+</div><!-- /stage -->
+
+<script src="js/utils.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/config.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/state.js"></script>
+<script src="js/character.js"></script>
+<script src="js/gates.js"></script>
+<script src="js/crates.js"></script>
+<script src="js/hazards.js"></script>
+<script src="js/level.js"></script>
+<script src="js/shop.js"></script>
+<script src="js/lobby.js"></script>
+<script src="js/main.js"></script>
