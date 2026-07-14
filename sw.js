@@ -1,4 +1,4 @@
-const CACHE = 'ccr-v2';
+const CACHE = 'ccr-v3';
 
 const PRECACHE_URLS = [
   './',
@@ -49,26 +49,58 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      if (response) {
-        return response;
-      }
+  const isNavigation = event.request.mode === 'navigate' || event.request.destination === 'document';
+  const isSameOrigin = new URL(event.request.url).origin === self.location.origin;
 
-      return fetch(event.request).then(response => {
-        if (
-          response &&
-          response.status === 200 &&
-          response.type === 'basic' &&
-          new URL(event.request.url).origin === self.location.origin
-        ) {
+  if (isNavigation) {
+    // Network-first for navigations (index.html, etc.)
+    event.respondWith(
+      fetch(event.request).then(response => {
+        if (response && response.status === 200 && response.type === 'basic' && isSameOrigin) {
           const responseToCache = response.clone();
           caches.open(CACHE).then(cache => {
             cache.put(event.request, responseToCache);
           });
         }
         return response;
-      });
-    })
-  );
+      }).catch(() => {
+        return caches.match('./index.html');
+      })
+    );
+  } else if (isSameOrigin) {
+    // Stale-while-revalidate for same-origin GETs
+    event.respondWith(
+      caches.match(event.request).then(response => {
+        const fetchPromise = fetch(event.request).then(fetchResponse => {
+          if (
+            fetchResponse &&
+            fetchResponse.status === 200 &&
+            fetchResponse.type === 'basic'
+          ) {
+            const responseToCache = fetchResponse.clone();
+            caches.open(CACHE).then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return fetchResponse;
+        });
+        return response || fetchPromise;
+      })
+    );
+  } else {
+    // Cache-first for cross-origin or other GETs
+    event.respondWith(
+      caches.match(event.request).then(response => {
+        if (response) {
+          return response;
+        }
+
+        return fetch(event.request);
+      })
+    );
+  }
+});
+
+self.addEventListener('message', e => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
 });
