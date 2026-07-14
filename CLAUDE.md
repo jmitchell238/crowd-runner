@@ -48,6 +48,15 @@ planning and verification only.
    — note `--virtual-time-budget` does NOT fast-forward requestAnimationFrame;
    inject state-forcing setTimeout hooks into a `js/_main_shot.js` copy instead.
    Delete `_shot*.html` / `_*.png` / `js/_main_shot.js` artifacts afterward.
+   GOTCHAS (cost hours; do not rediscover): `--window-size` is the OUTER
+   Windows window — the painted viewport is ~18px narrower and ~96px shorter,
+   and the rest of the screenshot canvas is unpainted white (a background on
+   the `html` element paints the whole canvas and hides this).
+   `--force-device-scale-factor` does not fix it, and Windows enforces a
+   minimum window size, so tiny captures (icons) come out zoomed. For
+   exact-size square captures: render at `--window-size=(S+18),(S+96)` and
+   crop the top-left SxS (scratchpad pngcrop.js), or capture at 512 and
+   downscale (scratchpad pngscale.js — both are pure-Node PNG tools).
 
 ## Rules
 

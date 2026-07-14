@@ -1,6 +1,14 @@
 <!doctype html>
 <meta charset="utf-8" />
 <title>Crowd Clash Runner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1520">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CrowdClash">
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1520;
     font-family: system-ui, Segoe UI, Arial, sans-serif; color: #fff;
@@ -89,6 +97,18 @@
     padding: 10px 24px; margin: 6px 0 10px; font-size: 14px; line-height: 1.7; }
   #statsBox b { color: #ffd23e; }
 
+  /* ------------------------------------------------ thumbstick */
+  #thumb { position: absolute; left: 22px;
+    bottom: calc(38px + env(safe-area-inset-bottom, 0px));
+    width: 124px; height: 124px; border-radius: 50%;
+    background: rgba(255,255,255,.14);
+    border: 2px solid rgba(255,255,255,.35);
+    touch-action: none; z-index: 6; }
+  #thumbKnob { position: absolute; left: 50%; top: 50%; width: 54px;
+    height: 54px; border-radius: 50%; background: rgba(255,255,255,.75);
+    transform: translate(-50%,-50%); box-shadow: 0 2px 6px rgba(0,0,0,.35);
+    pointer-events: none; }
+
   .hidden { display: none !important; }
 </style>
 
@@ -101,6 +121,7 @@
 </div>
 <div id="coinHud">&#129689; 0</div>
 <button id="restartBtn" title="Restart level">&#8635;</button>
+<div id="thumb" class="hidden"><div id="thumbKnob"></div></div>
 
 <div id="lobby" class="lobby">
   <div id="lobbyHead">
@@ -135,6 +156,7 @@
     <h2>&#9881;&#65039; Settings</h2>
     <div id="statsBox"></div>
     <button id="btnSound">Sound: On</button>
+    <button id="btnControls">Controls</button>
     <button id="btnReset" class="danger">Reset all progress</button>
     <p class="small">Crowd Clash Runner</p>
   </div>
@@ -161,3 +183,8 @@
 <script src="js/shop.js"></script>
 <script src="js/lobby.js"></script>
 <script src="js/main.js"></script>
+
+<script>
+if ('serviceWorker' in navigator && location.protocol.startsWith('http'))
+  navigator.serviceWorker.register('sw.js');
+</script>

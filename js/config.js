@@ -11,6 +11,8 @@ let level = parseInt(localStorage.getItem('ccr_level') || '1', 10);
 let coins = parseInt(localStorage.getItem('ccr_coins') || '0', 10);
 let stars = parseInt(localStorage.getItem('ccr_stars') || '0', 10);
 let soundOn = localStorage.getItem('ccr_sound') !== '0';
+let controls = localStorage.getItem('ccr_controls') ||
+  (('ontouchstart' in window) ? 'touch' : 'keyboard');
 const up = {
   weapon:    parseInt(localStorage.getItem('ccr_up_weapon')    || '0', 10),
   troops:    parseInt(localStorage.getItem('ccr_up_troops')    || '0', 10),

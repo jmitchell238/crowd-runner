@@ -16,7 +16,7 @@ function switchTab(name) {
 
 function showLobby(msgHtml, btnLabel) {
   $('lobby').classList.remove('hidden');
-  for (const id of ['hud', 'coinHud', 'restartBtn']) $(id).classList.add('hidden');
+  for (const id of ['hud', 'coinHud', 'restartBtn', 'thumb']) $(id).classList.add('hidden');
   $('homeMsg').innerHTML = msgHtml || INTRO_MSG;
   $('btnPlay').textContent = btnLabel || 'Play';
   $('homeLevel').textContent = 'Level ' + level;
@@ -91,11 +91,17 @@ function renderSettings() {
     Math.round((prestigeMult() - 1) * 100) + '% coins)<br>' +
     'Coins: <b>' + coins + '</b>';
   $('btnSound').textContent = 'Sound: ' + (soundOn ? 'On' : 'Off');
+  $('btnControls').textContent = 'Controls: ' + (controls === 'touch' ? 'Touchscreen 🕹️' : 'Keyboard ⌨️');
 }
 function toggleSound() {
   soundOn = !soundOn;
   localStorage.setItem('ccr_sound', soundOn ? '1' : '0');
   if (soundOn) sndGood();
+  renderSettings();
+}
+function toggleControls() {
+  controls = controls === 'touch' ? 'keyboard' : 'touch';
+  localStorage.setItem('ccr_controls', controls);
   renderSettings();
 }
 function resetProgress() {
@@ -110,4 +116,5 @@ function resetProgress() {
 for (const t of TABS) $('tab' + t).onclick = () => { audio(); switchTab(t); };
 $('btnClaim').onclick = claimDaily;
 $('btnSound').onclick = toggleSound;
+$('btnControls').onclick = toggleControls;
 $('btnReset').onclick = resetProgress;

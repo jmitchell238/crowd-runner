@@ -1,6 +1,7 @@
 'use strict';
 // ------------------------------------------------- input, game flow, loop
 let dragging = false, lastPX = 0;
+let thumbSteer = 0, thumbPid = null;
 const keys = {};
 cv.addEventListener('pointerdown', e => {
   dragging = true; lastPX = e.clientX;
@@ -18,12 +19,39 @@ addEventListener('pointerup', () => { dragging = false; cv.classList.remove('dra
 addEventListener('keydown', e => { keys[e.key] = true; });
 addEventListener('keyup',   e => { keys[e.key] = false; });
 
+$('thumb').addEventListener('pointerdown', e => {
+  $('thumb').setPointerCapture(e.pointerId);
+  thumbPid = e.pointerId;
+  const rect = $('thumb').getBoundingClientRect();
+  const dx = e.clientX - (rect.left + rect.width / 2);
+  thumbSteer = clamp(dx / 44, -1, 1);
+  $('thumbKnob').style.transform = 'translate(calc(-50% + ' + (thumbSteer * 38) + 'px), -50%)';
+});
+$('thumb').addEventListener('pointermove', e => {
+  if (thumbPid !== e.pointerId) return;
+  const rect = $('thumb').getBoundingClientRect();
+  const dx = e.clientX - (rect.left + rect.width / 2);
+  thumbSteer = clamp(dx / 44, -1, 1);
+  $('thumbKnob').style.transform = 'translate(calc(-50% + ' + (thumbSteer * 38) + 'px), -50%)';
+});
+$('thumb').addEventListener('pointerup', e => {
+  if (thumbPid !== e.pointerId) return;
+  thumbSteer = 0; thumbPid = null;
+  $('thumbKnob').style.transform = 'translate(-50%,-50%)';
+});
+$('thumb').addEventListener('pointercancel', e => {
+  if (thumbPid !== e.pointerId) return;
+  thumbSteer = 0; thumbPid = null;
+  $('thumbKnob').style.transform = 'translate(-50%,-50%)';
+});
+
 // ------------------------------------------------- flow
 function startLevel() {
   buildLevel(level);
   $('levelLabel').textContent = 'Level ' + level;
   updateHud();
   hideLobby();
+  $('thumb').classList.toggle('hidden', controls !== 'touch');
   state = 'play';
 }
 $('btnPlay').onclick = () => { audio(); startLevel(); };
@@ -59,6 +87,8 @@ function update(dt) {
                (keys.ArrowLeft  || keys.a || keys.A ? 1 : 0);
   if (kdir) player.targetX = clamp(player.targetX + kdir * 9 * dt,
                                    -ROAD_W / 2 + 0.8, ROAD_W / 2 - 0.8);
+  if (thumbSteer) player.targetX = clamp(player.targetX + thumbSteer * 9 * dt,
+                                         -ROAD_W / 2 + 0.8, ROAD_W / 2 - 0.8);
   player.x = lerp(player.x, player.targetX, Math.min(1, dt * 10));
 
   // forward motion (paused during a battle)
