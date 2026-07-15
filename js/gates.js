@@ -1,5 +1,8 @@
 'use strict';
 // ------------------------------------------------- gates (math + drawing)
+function gateOx(g) {
+  return g.mx ? Math.sin(tick * g.ms + g.m0) * g.mx : 0;
+}
 function opLabel(op) {
   return op.t === 'add' ? '+' + op.v : op.t === 'mul' ? 'x' + op.v :
          op.t === 'sub' ? '-' + op.v : '÷' + op.v;
@@ -54,10 +57,10 @@ function drawBonusWall(w) {
 }
 
 function drawGate(g) {
-  const hGate = 3.2;
+  const hGate = 3.2, ox = gateOx(g);
   const sides = [
-    { x0: -ROAD_W / 2 + 0.5, x1: -0.35, op: g.left },
-    { x0: 0.35, x1: ROAD_W / 2 - 0.5, op: g.right },
+    { x0: -ROAD_W / 2 + 0.5 + ox, x1: -0.35 + ox, op: g.left },
+    { x0: 0.35 + ox, x1: ROAD_W / 2 - 0.5 + ox, op: g.right },
   ];
   for (const s of sides) {
     const goodSide = s.op.t === 'add' || s.op.t === 'mul';

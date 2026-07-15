@@ -270,8 +270,64 @@ function drawBossFigure(e, fighting) {
   }
 }
 
+function drawFortress(e, fighting) {
+  const b = project(e.x, 0, e.z);
+  if (!b) return;
+  const u = b[2];
+  const sx = b[0], sy = b[1];
+  const h = 7 * u, w = 5 * u;
+  const ow = Math.max(1.5, h * .012);
+  const cracked = e.count < e.count0 * 0.5;
+  ctx.lineCap = 'round';
+  // shadow
+  ctx.fillStyle = 'rgba(0,0,0,.28)';
+  ctx.beginPath(); ctx.ellipse(sx, sy, w * .5, h * .08, 0, 0, 7); ctx.fill();
+  // base trapezoid
+  const baseW = w * 0.8, topW = w * 0.5, keepH = h * 0.5;
+  const baseY = sy, topY = sy - keepH;
+  ctx.fillStyle = '#7a685a'; ctx.strokeStyle = '#453b32'; ctx.lineWidth = ow;
+  ctx.beginPath();
+  ctx.moveTo(sx - baseW / 2, baseY);
+  ctx.lineTo(sx + baseW / 2, baseY);
+  ctx.lineTo(sx + topW / 2, topY);
+  ctx.lineTo(sx - topW / 2, topY);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // arched door at road level
+  ctx.strokeStyle = '#2a2a2f'; ctx.lineWidth = ow;
+  const dw = w * 0.15, dh = h * 0.18;
+  ctx.beginPath(); ctx.ellipse(sx, sy - dh * 0.5, dw, dh, 0, 0.5, 2.64); ctx.stroke();
+  // keep (rect on top)
+  const crenH = h * 0.15;
+  ctx.fillStyle = '#8a7566'; ctx.strokeStyle = '#453b32'; ctx.lineWidth = ow;
+  ctx.fillRect(sx - topW / 2, topY - crenH, topW, crenH);
+  ctx.strokeRect(sx - topW / 2, topY - crenH, topW, crenH);
+  // 3 crenellations
+  const creneW = topW / 4, creneH = h * 0.1;
+  for (const cx of [sx - topW * 0.35, sx, sx + topW * 0.35]) {
+    ctx.fillStyle = '#7a685a'; ctx.strokeStyle = '#453b32'; ctx.lineWidth = ow;
+    ctx.fillRect(cx - creneW / 2, topY - crenH - creneH, creneW, creneH);
+    ctx.strokeRect(cx - creneW / 2, topY - crenH - creneH, creneW, creneH);
+  }
+  // cannon ports (flash orange when fighting and volleyT just triggered)
+  const portR = w * 0.04;
+  const cannonFlash = fighting && battle && battle.volleyT < 0.1;
+  ctx.fillStyle = cannonFlash ? '#ff9d2e' : '#3a3f45';
+  for (const px of [sx - topW * 0.25, sx + topW * 0.25]) {
+    ctx.beginPath(); ctx.arc(px, topY - crenH / 2, portR, 0, 7); ctx.fill();
+  }
+  // cracks when damaged
+  if (cracked) {
+    ctx.strokeStyle = '#2a2a2f'; ctx.lineWidth = ow;
+    ctx.beginPath();
+    ctx.moveTo(sx - w * .1, topY + keepH * .2); ctx.lineTo(sx, topY + keepH * .45);
+    ctx.lineTo(sx - w * .06, topY + keepH * .7);
+    ctx.moveTo(sx + w * .12, topY + keepH * .35); ctx.lineTo(sx + w * .05, topY + keepH * .6);
+    ctx.stroke();
+  }
+}
+
 function drawCrowdLabel(c, extra, lvlText) {
-  const p = project(c.x, c.single ? bossHeight(c) + 0.9
+  const p = project(c.x, c.single ? (c.fort ? 4.6 : bossHeight(c)) + 0.9
                          : 2.7 + Math.sqrt(c.count) * 0.12, c.z);
   if (!p) return;
   const fs = Math.max(11, p[2] * 0.9);

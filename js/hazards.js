@@ -51,6 +51,30 @@ function drawSpikes(h) {
   }
 }
 
+function drawPit(h) {
+  const a = project(h.x0, 0, h.z), b = project(h.x1, 0, h.z);
+  if (!a || !b) return;
+  const mid = project((h.x0 + h.x1) / 2, 0, h.z);
+  if (!mid) return;
+  const w = Math.abs(a[0] - b[0]), xc = mid[0], yc = mid[1];
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.ellipse(xc, yc, w / 2, w / 6, 0, 0, 7);
+  ctx.fill();
+  ctx.strokeStyle = '#666';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#0a0a0a';
+  ctx.beginPath();
+  ctx.ellipse(xc - w / 8, yc + w / 12, w / 8, w / 12, 0, 0, 7);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(xc + w / 8, yc + w / 10, w / 10, w / 14, 0, 0, 7);
+  ctx.fill();
+}
+
 function drawHazard(h) {
-  if (h.type === 'saw') drawSaw(h); else drawSpikes(h);
+  if (h.type === 'saw') drawSaw(h);
+  else if (h.type === 'spikes') drawSpikes(h);
+  else if (h.type === 'pit') drawPit(h);
 }

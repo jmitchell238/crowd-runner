@@ -108,7 +108,8 @@ function update(dt) {
   for (const g of items) {
     if (g.used || player.z < g.z) continue;
     g.used = true;
-    const op = player.x < 0 ? g.left : g.right;
+    const ox = gateOx(g);
+    const op = player.x < ox ? g.left : g.right;
     const before = player.count;
     player.count = applyOp(op, player.count);
     peakCount = Math.max(peakCount, player.count);
@@ -145,14 +146,14 @@ function update(dt) {
       : player.x > h.x0 - 0.6 && player.x < h.x1 + 0.6;
     if (hit) {
       h.done = true;
-      const frac = h.type === 'saw' ? 0.25 : 0.35;
+      const frac = h.type === 'saw' ? 0.25 : h.type === 'pit' ? 0.30 : 0.35;
       const lose = Math.min(player.count - 1, Math.ceil(player.count * frac));
       if (lose > 0) {
         player.count -= lose;
         syncMembers(player, false);
         sndBad(); shakeT = 0.3;
-        popParticles(player.x, player.z, '#d33');
-        floatText(player.x, player.z, '-' + lose, '#ff6b6b');
+        popParticles(player.x, player.z, player.color);
+        floatText(player.x, player.z, '-' + lose + ' fell!', '#ff6b6b');
       }
     }
   }
@@ -172,7 +173,23 @@ function update(dt) {
     // armor divides what you take
     const rate = 5 + Math.min(player.count, e.count) * 2.2;
     const ratio = Math.sqrt(runPower / (e.pow || 1));
-    battle.accP += rate / ratio / armorDiv() * dt;
+    if (e.fort) {
+      battle.volleyT = (battle.volleyT || 0) + dt;
+      if (battle.volleyT >= 1.5) {
+        battle.volleyT = 0;
+        const volleyDmg = Math.max(1, Math.ceil(player.count * 0.05 / armorDiv()));
+        player.count = Math.max(0, player.count - volleyDmg);
+        syncMembers(player, false);
+        sndBad(); shakeT = 0.25;
+        if (player.members.length > 0) {
+          const tm = player.members[irand(0, player.members.length - 1)];
+          popParticles(tm.x, tm.z, player.color);
+        }
+        floatText(player.x, player.z, '-' + volleyDmg, '#ff6b6b');
+      }
+    } else {
+      battle.accP += rate / ratio / armorDiv() * dt;
+    }
     battle.accE += rate * ratio * dt;
     const kp = Math.floor(battle.accP), ke = Math.floor(battle.accE);
     if (kp > 0 || ke > 0) {
@@ -196,7 +213,7 @@ function update(dt) {
         for (let i = 0; i < 8; i++)
           popParticles(e.x + rand(-2.5, 2.5), e.z + rand(-2, 2), e.color);
       if (player.count <= 0) { player.count = 1; syncMembers(player, false); }
-      const gain = Math.ceil(e.count0 * (e.pow || 1) * 0.5 * coinMult());
+      const gain = e.fort ? Math.ceil(e.count0 * (e.pow || 1) * 0.05 * coinMult()) : Math.ceil(e.count0 * (e.pow || 1) * 0.5 * coinMult());
       coins += gain; coinsRun += gain;
       localStorage.setItem('ccr_coins', coins);
       updateHud();
@@ -262,9 +279,14 @@ function draw() {
     if (e.dead || e.z < cam.z + 2 || e.z > cam.z + 160) continue;
     const fighting = battle && battle.enemy === e;
     if (e.single) {                          // one giant boss figure
-      q.push({ z: e.z, f: () => drawBossFigure(e, fighting) });
-      q.push({ z: e.z - 5, f: () => drawCrowdLabel(e,
-        '☠ ' + (e.mega ? 'MEGA ' : '') + e.type.name + ' · ', 'Lv ' + e.lvl) });
+      if (e.fort) {
+        q.push({ z: e.z, f: () => drawFortress(e, fighting) });
+        q.push({ z: e.z - 5, f: () => drawCrowdLabel(e, '🏰 FORTRESS · ', 'Lv ' + e.lvl) });
+      } else {
+        q.push({ z: e.z, f: () => drawBossFigure(e, fighting) });
+        q.push({ z: e.z - 5, f: () => drawCrowdLabel(e,
+          '☠ ' + (e.mega ? 'MEGA ' : '') + e.type.name + ' · ', 'Lv ' + e.lvl) });
+      }
       continue;
     }
     for (const m of e.members) {
