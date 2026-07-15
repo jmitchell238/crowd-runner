@@ -2,7 +2,7 @@
 // ------------------------------------------------- crowds & person drawing
 function formationOffset(i) {         // sunflower spiral around the leader
   if (i === 0) return [0, 0];
-  const r = 0.68 * Math.sqrt(i), a = i * 2.39996;
+  const r = 0.82 * Math.sqrt(i), a = i * 2.39996;
   return [Math.cos(a) * r, Math.sin(a) * r * 0.8];
 }
 
@@ -39,6 +39,12 @@ function seg(color, w, x0, y0, x1, y1) {
   ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
 }
 
+function drawSprite(img, col, row, sx, sy, dh) {
+  const dw = dh;
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img, col * 16, row * 16, 16, 16, Math.round(sx - dw / 2), Math.round(sy - dh), Math.round(dw), Math.round(dh));
+}
+
 function drawWeapon(u, tier) {         // drawn in a translated/rotated frame
   ctx.lineCap = 'round';
   if (tier === 1) {                    // stick
@@ -62,7 +68,15 @@ function drawWeapon(u, tier) {         // drawn in a translated/rotated frame
   }
 }
 
-function drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear) {
+function drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear, img, facingCol) {
+  if (img && spriteReady(img)) {
+    const walkRow = running ? Math.floor(phase / (Math.PI / 2)) % 4 : 0;
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,.22)';
+    ctx.fillRect(Math.round(sx - u * .32), Math.round(sy), Math.round(u * .64), Math.round(u * .11));
+    drawSprite(img, facingCol, walkRow, sx, sy, u * 1.5);
+    return;
+  }
   if (u < 1.4) {
     ctx.fillStyle = color;
     ctx.fillRect(Math.round(sx - u * .3), Math.round(sy - u * 1.4), Math.round(u * .6), Math.round(u * 1.4));
@@ -102,7 +116,17 @@ function drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear) {
   }
 }
 
-function drawPerson(sx, sy, u, color, dark, phase, running, tier, gear) {
+function drawPerson(sx, sy, u, color, dark, phase, running, tier, gear, img, facingCol) {
+  // Sprite rendering (both graphics modes)
+  if (img && spriteReady(img)) {
+    const walkRow = running ? Math.floor(phase / (Math.PI / 2)) % 4 : 0;
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,.22)';
+    ctx.beginPath(); ctx.ellipse(sx, sy, u * .32, u * .11, 0, 0, 7); ctx.fill();
+    drawSprite(img, facingCol, walkRow, sx, sy, u * 1.5);
+    return;
+  }
+  // Fallback: procedural rendering
   if (gfx === 'pixel') {
     drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear);
     return;
@@ -191,6 +215,19 @@ function drawBossFigure(e, fighting) {
   const w = h * .4;                          // torso width
   const ow = Math.max(1.5, h * .012);        // outline
   ctx.lineCap = 'round';
+
+  // Sprite rendering (if available)
+  if (e.type.sprite) {
+    const img = SPRITES['bosses.' + e.type.sprite];
+    if (spriteReady(img)) {
+      // shadow
+      ctx.fillStyle = 'rgba(0,0,0,.28)';
+      ctx.beginPath(); ctx.ellipse(sx, sy, w * .85, h * .045, 0, 0, 7); ctx.fill();
+      const walkRow = Math.floor(tick * (fighting ? 9 : 2)) % 4;
+      drawSprite(img, 0, walkRow, sx, sy, bossHeight(e) * u * 1.6);
+      return;
+    }
+  }
 
   // shadow
   ctx.fillStyle = 'rgba(0,0,0,.28)';

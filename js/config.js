@@ -7,14 +7,14 @@ const PALETTE = ['#e0312f', '#9b2fd6', '#2fae4a', '#ff8c1a', '#e8d227', '#d62f9b
 const REBIRTH_LEVEL = 15;             // rebirth unlocks after beating this level
 
 const SKINS = [
-  {name:'Classic', color:'#2f6fe0', cost:0},
-  {name:'Emerald', color:'#22b573', cost:2000},
-  {name:'Sunset', color:'#ff7a3d', cost:5000},
-  {name:'Bubblegum', color:'#ff5bb0', cost:12000},
-  {name:'Gold', color:'#f5c518', cost:25000},
-  {name:'Crimson', color:'#c22b2b', cost:50000},
-  {name:'Shadow', color:'#3a4152', cost:100000},
-  {name:'Diamond', color:'#7fe8ff', cost:250000}
+  {name:'Ninja', color:'#43b649', cost:0, sprite:'ninja'},
+  {name:'Rookie', color:'#ff8c1a', cost:2000, sprite:'rookie'},
+  {name:'Scout', color:'#3f9d8a', cost:5000, sprite:'scout'},
+  {name:'Monk', color:'#d6336c', cost:12000, sprite:'monk'},
+  {name:'Brawler', color:'#e8590c', cost:25000, sprite:'brawler'},
+  {name:'Elder', color:'#e03131', cost:50000, sprite:'elder'},
+  {name:'Shade', color:'#7048e8', cost:100000, sprite:'shade'},
+  {name:'Ranger', color:'#a9722d', cost:250000, sprite:'ranger'}
 ];
 
 // progress saved in localStorage
@@ -81,11 +81,11 @@ const SHOP_ITEMS = [
 ];
 // end-of-level bosses cycle through these; every 5th level is a MEGA boss
 const BOSS_TYPES = [
-  { name: 'OGRE',   color: '#43b649' },
-  { name: 'KNIGHT', color: '#aeb9c4' },
-  { name: 'REAPER', color: '#4a3f63' },
-  { name: 'GOLEM',  color: '#a97142' },
-  { name: 'DEMON',  color: '#e03131' },
+  { name: 'CRAB',    color: '#e03131', sprite: 'crab' },
+  { name: 'FLAME',   color: '#ff6b35', sprite: 'flame' },
+  { name: 'BEAST',   color: '#a0522d', sprite: 'beast' },
+  { name: 'PHOENIX', color: '#ffa94d', sprite: 'phoenix' },
+  { name: 'FIEND',   color: '#9c36b5', sprite: 'fiend' },
 ];
 
 const richesMult   = () => 1 + up.riches * 0.2;

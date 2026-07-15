@@ -1,4 +1,4 @@
-const CACHE = 'ccr-v7';
+const CACHE = 'ccr-v8';
 
 const PRECACHE_URLS = [
   './',
@@ -7,6 +7,7 @@ const PRECACHE_URLS = [
   './js/utils.js',
   './js/audio.js',
   './js/config.js',
+  './js/sprites.js',
   './js/renderer.js',
   './js/state.js',
   './js/character.js',

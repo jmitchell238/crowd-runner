@@ -26,8 +26,8 @@ planning and verification only.
 - Game lives at `/mnt/c/Users/jmitc/workspace/crowd-runner/`, launched by
   double-clicking `index.html` over **file://** — so NO ES modules, NO external
   assets; classic `<script>` tags share one global scope.
-- Script load order matters (see index.html): utils, audio, config, renderer,
-  state, character, gates, crates, hazards, level, shop, lobby, main.
+- Script load order matters (see index.html): utils, audio, config, sprites,
+  renderer, state, character, gates, crates, hazards, level, shop, lobby, main (14 files).
 - Pseudo-3D: `project(wx,wy,wz)` → `[screenX, screenY, scale]`; painter's
   algorithm queue `q` in main.js draw(), sorted far→near.
 - 16:9 / 9:16 letterboxed `#stage`; all UI is absolute inside the stage.
@@ -38,7 +38,7 @@ planning and verification only.
 ## Testing (what every coding bead must run)
 
 1. Syntax: `cd /mnt/c/Users/jmitc/workspace/crowd-runner && for f in js/*.js; do node --check "$f"; done`
-2. Smoke sim: concatenate the 13 js files in load order into `game.js` next to
+2. Smoke sim: concatenate the 14 js files in load order into `game.js` next to
    the scratchpad `smoke.js` harness (stubbed DOM + optimal bot) and run
    `node smoke.js` — must end with `SMOKE OK`.
 3. Visuals (when rendering changed): headless Windows Chrome from WSL:
