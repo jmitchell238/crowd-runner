@@ -44,7 +44,7 @@
     font-size: 19px; font-weight: 800; color: #ffd23e;
     text-shadow: 0 2px 5px rgba(0,0,0,.4); }
   .page { flex: 1; overflow-y: auto; display: flex; flex-direction: column;
-    align-items: center; text-align: center; padding: 4px 16px 20px; }
+    align-items: center; text-align: center; padding: 4px 16px 20px; width: 100%; box-sizing: border-box; }
   .page h1 { font-size: 36px; margin: 14px 0 2px; text-shadow: 0 3px 8px rgba(0,0,0,.4); }
   .page h2 { font-size: 26px; margin: 8px 0 4px; text-shadow: 0 3px 8px rgba(0,0,0,.4); }
   .page p { opacity: .95; margin: 4px 0 10px; max-width: 520px; font-size: 15px;
@@ -74,13 +74,13 @@
 
   /* ------------------------------------------------ shop page */
   #shop { margin: 4px 0 0; display: flex; flex-direction: column;
-    align-items: center; }
+    align-items: center; width: 100%; }
   #shopCoins { font-size: 17px; font-weight: 800; color: #ffd23e; margin-bottom: 6px;
     text-shadow: 0 2px 5px rgba(0,0,0,.4); }
   #shopItems { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
-    max-width: 660px; }
+    max-width: 100%; }
   .shopItem { background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.3);
-    border-radius: 12px; padding: 8px 10px; width: 148px; }
+    border-radius: 12px; padding: 8px 10px; width: 148px; box-sizing: border-box; }
   .shopItem h4 { margin: 0 0 2px; font-size: 13.5px; }
   .shopItem .lv { opacity: .75; font-weight: 600; font-size: 11px; }
   .shopItem .eff { font-size: 11.5px; opacity: .92; margin-bottom: 6px;

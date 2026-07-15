@@ -16,7 +16,7 @@ function updateHud() {
 
 function renderShop() {
   const shop = $('shop');
-  let html = '<div id="shopCoins">🪙 ' + coins + '</div><div id="shopItems">';
+  let html = '<div id="shopItems">';
   for (const it of SHOP_ITEMS) {
     const lvl = up[it.key], maxed = lvl >= it.max;
     const cost = maxed ? 0 : it.cost(lvl);
@@ -30,7 +30,7 @@ function renderShop() {
   }
   html += '</div>';
   // skins: crowd colors
-  html += '<div style="width:560px;margin-top:12px"><h4 style="margin-top:0">Crowd Skins</h4><div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:560px">';
+  html += '<div style="width:100%;margin-top:12px"><h4 style="margin-top:0">Crowd Skins</h4><div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:100%">';
   for (let i = 0; i < SKINS.length; i++) {
     const owned = skinsOwned.includes(i);
     const selected = i === skin;
@@ -46,7 +46,7 @@ function renderShop() {
   html += '</div></div>';
   // rebirth: the long game — trade all progress for a permanent coin boost
   const can = level > REBIRTH_LEVEL;
-  html += '<div class="shopItem" style="width:340px;margin-top:10px">' +
+  html += '<div class="shopItem" style="width:min(340px,100%);box-sizing:border-box;margin-top:10px">' +
     '<h4>⭐ Rebirth <span class="lv">' + stars + ' star' + (stars === 1 ? '' : 's') +
     (stars > 0 ? ' — +' + Math.round((prestigeMult() - 1) * 100) + '% coins' : '') +
     '</span></h4>' +
