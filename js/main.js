@@ -56,9 +56,11 @@ function startLevel() {
 }
 $('btnPlay').onclick = () => { audio(); startLevel(); };
 $('restartBtn').onclick = () => { if (state === 'play') startLevel(); };
+$('exitBtn').onclick = () => { if (state !== 'play') return; if (!confirm('ARE YOU SURE? All progress and coins will be lost for this level.')) return; coins = Math.max(0, coins - coinsRun); localStorage.setItem('ccr_coins', coins); state = 'menu'; showLobby(); };
 
 function winLevel() {
   state = 'win'; sndWin();
+  missionAdd('win', 1);
   const bonus = Math.ceil((player.count * 1.5 + level * 6) * coinMult()) * bonusMult;
   coins += bonus; coinsRun += bonus;
   localStorage.setItem('ccr_coins', coins);
@@ -113,6 +115,7 @@ function update(dt) {
     const before = player.count;
     player.count = applyOp(op, player.count);
     peakCount = Math.max(peakCount, player.count);
+    missionAdd('peak', player.count);
     const gained = player.count - before;
     if (gained >= 0) { sndGood(); floatText(player.x, player.z, '+' + gained, '#7ecbff'); }
     else { sndBad(); shakeT = 0.3; floatText(player.x, player.z, '' + gained, '#ff8080'); }
@@ -125,6 +128,7 @@ function update(dt) {
     cr.done = true;
     if (Math.abs(player.x - cr.x) < 1.9) {
       cr.taken = true;
+      missionAdd('crates', 1);
       const before = visualTier();
       cratesTaken++;
       runPower *= 1 + cratePower();
@@ -209,9 +213,11 @@ function update(dt) {
     }
     if (e.count <= 0) {
       e.dead = true;
-      if (e.single)                          // boss death burst
+      if (e.single) {                        // boss death burst
+        missionAdd('boss', 1);
         for (let i = 0; i < 8; i++)
           popParticles(e.x + rand(-2.5, 2.5), e.z + rand(-2, 2), e.color);
+      }
       if (player.count <= 0) { player.count = 1; syncMembers(player, false); }
       const gain = e.fort ? Math.ceil(e.count0 * (e.pow || 1) * 0.05 * coinMult()) : Math.ceil(e.count0 * (e.pow || 1) * 0.5 * coinMult());
       coins += gain; coinsRun += gain;
@@ -230,6 +236,7 @@ function update(dt) {
       if (w.broken || player.z < w.z - 2) continue;
       if (player.count >= w.need) {
         w.broken = true; bonusMult = w.mult;
+        missionAdd('walls', 1);
         sndSmash(); shakeT = 0.25;
         for (let i = -3; i <= 3; i++)
           popParticles(i * ROAD_W / 7, w.z, '#ffce4d');

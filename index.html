@@ -27,6 +27,11 @@
     font-size: 28px; font-weight: 800; cursor: pointer;
     box-shadow: 0 3px 8px rgba(0,0,0,.3); z-index: 5; }
   #restartBtn:hover { background: #ff8f3d; }
+  #exitBtn { position: absolute; top: 12px; right: 76px; width: 52px; height: 52px;
+    border: none; border-radius: 50%; background: #e05252; color: #fff;
+    font-size: 28px; font-weight: 800; cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,.3); z-index: 5; }
+  #exitBtn:hover { background: #ea6b6b; }
   #coinHud { position: absolute; top: 16px; left: 14px; background: rgba(0,0,0,.28);
     border-radius: 20px; padding: 7px 16px; font-size: 19px; font-weight: 800;
     color: #ffd23e; z-index: 5; }
@@ -121,6 +126,7 @@
 </div>
 <div id="coinHud">&#129689; 0</div>
 <button id="restartBtn" title="Restart level">&#8635;</button>
+<button id="exitBtn" title="Exit to menu">&#10005;</button>
 <div id="thumb" class="hidden"><div id="thumbKnob"></div></div>
 
 <div id="lobby" class="lobby">
@@ -150,6 +156,7 @@
        and the streak starts over!</p>
     <div id="dailyGrid"></div>
     <button id="btnClaim">Claim</button>
+    <div id="missions"></div>
   </div>
 
   <div class="page hidden" id="pageSettings">

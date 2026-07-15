@@ -4,7 +4,7 @@ function buildLevel(L) {
   items = []; enemies = []; particles = []; texts = []; battle = null;
   shakeT = 0; crates = []; coinsRun = 0; cratesTaken = 0;
   runPower = troopPow(troopLevel()) * WEAPONS[up.weapon].pow;
-  player = makeCrowd(0, 0, 1 + up.recruits * 2, '#2f6fe0');
+  player = makeCrowd(0, 0, 1 + up.recruits * 2, SKINS[skin].color);
   player.speed = Math.min(11 + L * 0.35, 18);
   player.targetX = 0;
   peakCount = player.count;

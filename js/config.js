@@ -6,6 +6,17 @@ const MAXR = 130;                     // max rendered members per crowd
 const PALETTE = ['#e0312f', '#9b2fd6', '#2fae4a', '#ff8c1a', '#e8d227', '#d62f9b'];
 const REBIRTH_LEVEL = 15;             // rebirth unlocks after beating this level
 
+const SKINS = [
+  {name:'Classic', color:'#2f6fe0', cost:0},
+  {name:'Emerald', color:'#22b573', cost:2000},
+  {name:'Sunset', color:'#ff7a3d', cost:5000},
+  {name:'Bubblegum', color:'#ff5bb0', cost:12000},
+  {name:'Gold', color:'#f5c518', cost:25000},
+  {name:'Crimson', color:'#c22b2b', cost:50000},
+  {name:'Shadow', color:'#3a4152', cost:100000},
+  {name:'Diamond', color:'#7fe8ff', cost:250000}
+];
+
 // progress saved in localStorage
 let level = parseInt(localStorage.getItem('ccr_level') || '1', 10);
 let coins = parseInt(localStorage.getItem('ccr_coins') || '0', 10);
@@ -13,6 +24,8 @@ let stars = parseInt(localStorage.getItem('ccr_stars') || '0', 10);
 let soundOn = localStorage.getItem('ccr_sound') !== '0';
 let controls = localStorage.getItem('ccr_controls') ||
   (('ontouchstart' in window) ? 'touch' : 'keyboard');
+let skin = parseInt(localStorage.getItem('ccr_skin') || '0', 10);
+let skinsOwned = JSON.parse(localStorage.getItem('ccr_skins') || '[0]');
 const up = {
   weapon:    parseInt(localStorage.getItem('ccr_up_weapon')    || '0', 10),
   troops:    parseInt(localStorage.getItem('ccr_up_troops')    || '0', 10),

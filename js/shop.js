@@ -29,6 +29,21 @@ function renderShop() {
       (maxed ? 'MAX' : 'Upgrade — 🪙 ' + cost) + '</button></div>';
   }
   html += '</div>';
+  // skins: crowd colors
+  html += '<div style="width:560px;margin-top:12px"><h4 style="margin-top:0">Crowd Skins</h4><div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:560px">';
+  for (let i = 0; i < SKINS.length; i++) {
+    const owned = skinsOwned.includes(i);
+    const selected = i === skin;
+    const s = SKINS[i];
+    html += '<div style="display:flex;flex-direction:column;align-items:center"><button style="width:64px;height:64px;border-radius:50%;background:' + s.color +
+      ';border:' + (selected ? '4px solid #ffd23e' : '2px solid rgba(255,255,255,.3)') +
+      ';opacity:' + (owned ? '1' : '0.5') +
+      ';cursor:pointer;padding:0;flex:none;min-width:0" ' +
+      'data-skin-idx="' + i + '" title="' + s.name + '"></button>' +
+      '<div style="font-size:11px;text-align:center;margin-top:6px">' + s.name +
+      '<div style="font-size:10px;opacity:0.8">' + (owned ? (selected ? 'Equipped' : 'Equip') : '🪙 ' + s.cost) + '</div></div></div>';
+  }
+  html += '</div></div>';
   // rebirth: the long game — trade all progress for a permanent coin boost
   const can = level > REBIRTH_LEVEL;
   html += '<div class="shopItem" style="width:340px;margin-top:10px">' +
@@ -43,6 +58,8 @@ function renderShop() {
   shop.innerHTML = html;
   shop.querySelectorAll('button[data-key]').forEach(b =>
     b.onclick = () => buyUpgrade(b.dataset.key));
+  shop.querySelectorAll('button[data-skin-idx]').forEach(b =>
+    b.onclick = () => buySkin(parseInt(b.dataset.skinIdx, 10)));
   const rb = shop.querySelector('#btnRebirth');
   if (rb) rb.onclick = doRebirth;
 }
@@ -55,6 +72,25 @@ function buyUpgrade(key) {
   localStorage.setItem('ccr_coins', coins);
   localStorage.setItem('ccr_up_' + key, up[key]);
   sndGood(); renderShop(); updateHud();
+}
+
+function buySkin(idx) {
+  if (idx < 0 || idx >= SKINS.length) return;
+  const s = SKINS[idx];
+  if (skinsOwned.includes(idx)) {
+    skin = idx;
+  } else {
+    if (coins < s.cost) return;
+    coins -= s.cost;
+    skinsOwned.push(idx);
+    skin = idx;
+    localStorage.setItem('ccr_coins', coins);
+    localStorage.setItem('ccr_skins', JSON.stringify(skinsOwned));
+    sndGood();
+  }
+  localStorage.setItem('ccr_skin', skin);
+  buildLevel(level);
+  renderShop(); updateHud();
 }
 
 function doRebirth() {
