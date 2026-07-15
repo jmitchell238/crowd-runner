@@ -189,6 +189,7 @@ function renderSettings() {
     'Coins: <b>' + coins + '</b>';
   $('btnSound').textContent = 'Sound: ' + (soundOn ? 'On' : 'Off');
   $('btnControls').textContent = 'Controls: ' + (controls === 'touch' ? 'Touchscreen 🕹️' : 'Keyboard ⌨️');
+  $('btnGfx').textContent = 'Graphics: ' + (gfx === 'pixel' ? 'Pixel 👾' : 'Classic 🎨');
 }
 function toggleSound() {
   soundOn = !soundOn;
@@ -201,11 +202,17 @@ function toggleControls() {
   localStorage.setItem('ccr_controls', controls);
   renderSettings();
 }
+function toggleGfx() {
+  gfx = gfx === 'pixel' ? 'classic' : 'pixel';
+  localStorage.setItem('ccr_gfx', gfx);
+  resize();
+  renderSettings();
+}
 function resetProgress() {
   if (!confirm('Delete ALL progress (levels, coins, upgrades, stars)?')) return;
   ['ccr_level', 'ccr_coins', 'ccr_stars', 'ccr_daily_last', 'ccr_daily_streak',
    'ccr_sound', 'ccr_skin', 'ccr_skins', 'ccr_miss_day', 'ccr_miss_prog',
-   'ccr_miss_claimed', 'ccr_controls'].forEach(k => localStorage.removeItem(k));
+   'ccr_miss_claimed', 'ccr_controls', 'ccr_gfx'].forEach(k => localStorage.removeItem(k));
   Object.keys(up).forEach(k => localStorage.removeItem('ccr_up_' + k));
   if (typeof location !== 'undefined') location.reload();
 }
@@ -215,4 +222,5 @@ for (const t of TABS) $('tab' + t).onclick = () => { audio(); switchTab(t); };
 $('btnClaim').onclick = claimDaily;
 $('btnSound').onclick = toggleSound;
 $('btnControls').onclick = toggleControls;
+$('btnGfx').onclick = toggleGfx;
 $('btnReset').onclick = resetProgress;

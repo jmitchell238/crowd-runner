@@ -17,7 +17,7 @@
   #stage { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
     overflow: hidden; background: #35c1e8;
     box-shadow: 0 0 44px rgba(0,0,0,.55); }
-  canvas { display: block; cursor: grab; }
+  canvas { display: block; cursor: grab; image-rendering: pixelated; }
   canvas.dragging { cursor: grabbing; }
   #hud { position: absolute; top: 10px; left: 0; right: 0; text-align: center;
     pointer-events: none; text-shadow: 0 2px 5px rgba(0,0,0,.35); }
@@ -164,6 +164,7 @@
     <div id="statsBox"></div>
     <button id="btnSound">Sound: On</button>
     <button id="btnControls">Controls</button>
+    <button id="btnGfx">Graphics</button>
     <button id="btnReset" class="danger">Reset all progress</button>
     <p class="small">Crowd Clash Runner</p>
   </div>

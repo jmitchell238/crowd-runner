@@ -62,7 +62,51 @@ function drawWeapon(u, tier) {         // drawn in a translated/rotated frame
   }
 }
 
+function drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear) {
+  if (u < 1.4) {
+    ctx.fillStyle = color;
+    ctx.fillRect(Math.round(sx - u * .3), Math.round(sy - u * 1.4), Math.round(u * .6), Math.round(u * 1.4));
+    return;
+  }
+  const legStep = Math.floor(phase / Math.PI) % 2;
+  const bob = running ? Math.abs(Math.sin(phase)) * 0.1 * u : 0;
+  const hipY = Math.round(sy - u * .6 - bob);
+  const tw = Math.round(u * .44), th = Math.round(u * .72);
+  const ty = Math.round(sy - u * .55 - th - bob);
+  const legW = Math.round(u * .11), legH = Math.round(u * .6);
+  // shadow
+  ctx.fillStyle = 'rgba(0,0,0,.22)';
+  ctx.fillRect(Math.round(sx - u * .32), Math.round(sy), Math.round(u * .64), Math.round(u * .11));
+  // legs (2-frame stepped walk)
+  ctx.fillStyle = dark;
+  const liftY = legStep === 0 ? Math.round(u * .1) : 0;
+  ctx.fillRect(Math.round(sx - u * .11 - legW / 2), Math.round(hipY - liftY), legW, legH);
+  ctx.fillRect(Math.round(sx + u * .11 - legW / 2), Math.round(hipY + (legStep === 1 ? Math.round(u * .1) : 0)), legW, legH);
+  // torso
+  ctx.fillStyle = color;
+  ctx.fillRect(Math.round(sx - tw / 2), ty, tw, th);
+  // arms
+  const armY = Math.round(ty + u * .12), armW = Math.round(u * .08), armH = Math.round(u * .36);
+  ctx.fillStyle = color;
+  ctx.fillRect(Math.round(sx - tw / 2 - armW), armY, armW, armH);
+  ctx.fillRect(Math.round(sx + tw / 2), armY, armW, armH);
+  // head
+  const headX = Math.round(sx), headY = Math.round(ty - u * .2), headSize = Math.round(u * .2);
+  ctx.fillStyle = color;
+  ctx.fillRect(headX - headSize, headY, headSize * 2, headSize * 2);
+  // gear: helmet top + chest band
+  if (gear && u > 2.2) {
+    ctx.fillStyle = gear;
+    ctx.fillRect(headX - headSize, headY, headSize * 2, Math.round(headSize * 0.8));
+    ctx.fillRect(Math.round(sx - tw / 2), Math.round(ty + th * .35), tw, Math.max(1, Math.round(th * .18)));
+  }
+}
+
 function drawPerson(sx, sy, u, color, dark, phase, running, tier, gear) {
+  if (gfx === 'pixel') {
+    drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear);
+    return;
+  }
   if (u < 1.4) {                      // too far away: a simple dot
     ctx.fillStyle = color;
     ctx.fillRect(sx - u * .3, sy - u * 1.4, u * .6, u * 1.4);

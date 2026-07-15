@@ -26,6 +26,7 @@ let controls = localStorage.getItem('ccr_controls') ||
   (('ontouchstart' in window) ? 'touch' : 'keyboard');
 let skin = parseInt(localStorage.getItem('ccr_skin') || '0', 10);
 let skinsOwned = JSON.parse(localStorage.getItem('ccr_skins') || '[0]');
+let gfx = localStorage.getItem('ccr_gfx') || 'pixel';
 const up = {
   weapon:    parseInt(localStorage.getItem('ccr_up_weapon')    || '0', 10),
   troops:    parseInt(localStorage.getItem('ccr_up_troops')    || '0', 10),

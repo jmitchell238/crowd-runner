@@ -10,7 +10,7 @@ cv.addEventListener('pointerdown', e => {
 });
 cv.addEventListener('pointermove', e => {
   if (!dragging || !player) return;
-  const worldPerPx = 14 / Math.min(W, 900);
+  const worldPerPx = 14 / Math.min(cv.clientWidth || W, 900);
   player.targetX = clamp(player.targetX + (e.clientX - lastPX) * worldPerPx,
                          -ROAD_W / 2 + 0.8, ROAD_W / 2 - 0.8);
   lastPX = e.clientX;

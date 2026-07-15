@@ -11,7 +11,12 @@ function resize() {
   if (h > innerHeight) { h = innerHeight; w = Math.round(h * ar); }
   stage.style.width = w + 'px';
   stage.style.height = h + 'px';
-  W = cv.width = w; H = cv.height = h;
+  const PIX = gfx === 'pixel' ? 4 : 1;
+  cv.width = Math.floor(w / PIX);
+  cv.height = Math.floor(h / PIX);
+  cv.style.width = w + 'px';
+  cv.style.height = h + 'px';
+  W = cv.width; H = cv.height;
   CX = W / 2; CY = H * 0.44;
   F = Math.max(H * 1.05, W * 0.6);
 }
@@ -33,10 +38,19 @@ function project(wx, wy, wz) {
 
 function drawRoad() {
   // sky
-  const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, '#35c1e8'); sky.addColorStop(.62, '#7fd9f2');
-  sky.addColorStop(.8, '#e8a7e0'); sky.addColorStop(1, '#d05fd0');
-  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  if (gfx === 'pixel') {
+    const colors = ['#35c1e8', '#7fd9f2', '#e8a7e0', '#d05fd0'];
+    const h4 = H / 4;
+    for (let i = 0; i < 4; i++) {
+      ctx.fillStyle = colors[i];
+      ctx.fillRect(0, i * h4, W, h4);
+    }
+  } else {
+    const sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#35c1e8'); sky.addColorStop(.62, '#7fd9f2');
+    sky.addColorStop(.8, '#e8a7e0'); sky.addColorStop(1, '#d05fd0');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  }
 
   const zn = cam.z + 4, zf = cam.z + 160;
   const pn = project(0, 0, zn), pf = project(0, 0, zf);
