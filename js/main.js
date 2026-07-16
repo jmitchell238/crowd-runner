@@ -1,7 +1,7 @@
 'use strict';
 // ------------------------------------------------- input, game flow, loop
 let dragging = false, lastPX = 0;
-let thumbSteer = 0, thumbPid = null, thumbOriginX = 0, thumbOriginY = 0;
+let thumbSteer = 0, thumbPid = null, thumbOriginX = 0, thumbOriginY = 0, thumbBaseTX = 0;
 const keys = {};
 cv.addEventListener('pointerdown', e => {
   audio();
@@ -21,6 +21,7 @@ cv.addEventListener('pointerdown', e => {
     $('thumb').style.opacity = '1';
     thumbOriginX = e.clientX;
     thumbOriginY = e.clientY;
+    thumbBaseTX = player ? player.targetX : 0;
     thumbPid = e.pointerId;
     cv.setPointerCapture(e.pointerId);
   } else {
@@ -35,6 +36,8 @@ cv.addEventListener('pointermove', e => {
     const dx = e.clientX - thumbOriginX;
     thumbSteer = clamp(dx / 44, -1, 1);
     $('thumbKnob').style.transform = 'translate(calc(-50% + ' + (thumbSteer * 38) + 'px), -50%)';
+    const worldPerPx = 14 / Math.min(cv.clientWidth || W, 900);
+    player.targetX = clamp(thumbBaseTX + dx * worldPerPx, -ROAD_W / 2 + 0.8, ROAD_W / 2 - 0.8);
   } else if (dragging && !player) return;
   else if (dragging) {
     // Mouse drag-steer
@@ -119,9 +122,7 @@ function update(dt) {
                (keys.ArrowLeft  || keys.a || keys.A ? 1 : 0);
   if (kdir) player.targetX = clamp(player.targetX + kdir * 9 * dt,
                                    -ROAD_W / 2 + 0.8, ROAD_W / 2 - 0.8);
-  if (thumbSteer) player.targetX = clamp(player.targetX + thumbSteer * 9 * dt,
-                                         -ROAD_W / 2 + 0.8, ROAD_W / 2 - 0.8);
-  player.x = lerp(player.x, player.targetX, Math.min(1, dt * 10));
+  player.x = lerp(player.x, player.targetX, Math.min(1, dt * (thumbPid !== null ? 18 : 10)));
 
   // forward motion (paused during a battle)
   if (!battle) player.z += player.speed * dt;
