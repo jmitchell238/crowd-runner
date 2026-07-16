@@ -1,49 +1,79 @@
 'use strict';
 // ------------------------------------------------- input, game flow, loop
 let dragging = false, lastPX = 0;
-let thumbSteer = 0, thumbPid = null;
+let thumbSteer = 0, thumbPid = null, thumbOriginX = 0, thumbOriginY = 0;
 const keys = {};
 cv.addEventListener('pointerdown', e => {
-  dragging = true; lastPX = e.clientX;
-  cv.classList.add('dragging'); cv.setPointerCapture(e.pointerId);
   audio();
+  if (controls === 'touch' && state === 'play') {
+    // Floating thumbstick: relocate to touch point
+    const stageRect = $('stage').getBoundingClientRect();
+    const centerX = e.clientX - stageRect.left;
+    const centerY = e.clientY - stageRect.top;
+    const thumbRadius = 62; // half of 124px
+    // Clamp so the circle stays within stage
+    const clampedX = clamp(centerX, thumbRadius, stageRect.width - thumbRadius);
+    const clampedY = clamp(centerY, thumbRadius, stageRect.height - thumbRadius);
+    $('thumb').style.left = (clampedX - thumbRadius) + 'px';
+    $('thumb').style.top = (clampedY - thumbRadius) + 'px';
+    $('thumb').style.right = 'auto';
+    $('thumb').style.bottom = 'auto';
+    $('thumb').style.opacity = '1';
+    thumbOriginX = e.clientX;
+    thumbOriginY = e.clientY;
+    thumbPid = e.pointerId;
+    cv.setPointerCapture(e.pointerId);
+  } else {
+    // Keyboard/mouse drag-steer
+    dragging = true; lastPX = e.clientX;
+    cv.classList.add('dragging'); cv.setPointerCapture(e.pointerId);
+  }
 });
 cv.addEventListener('pointermove', e => {
-  if (!dragging || !player) return;
-  const worldPerPx = 14 / Math.min(cv.clientWidth || W, 900);
-  player.targetX = clamp(player.targetX + (e.clientX - lastPX) * worldPerPx,
-                         -ROAD_W / 2 + 0.8, ROAD_W / 2 - 0.8);
-  lastPX = e.clientX;
+  if (controls === 'touch' && state === 'play' && thumbPid === e.pointerId && player) {
+    // Update floating thumbstick steering
+    const dx = e.clientX - thumbOriginX;
+    thumbSteer = clamp(dx / 44, -1, 1);
+    $('thumbKnob').style.transform = 'translate(calc(-50% + ' + (thumbSteer * 38) + 'px), -50%)';
+  } else if (dragging && !player) return;
+  else if (dragging) {
+    // Mouse drag-steer
+    const worldPerPx = 14 / Math.min(cv.clientWidth || W, 900);
+    player.targetX = clamp(player.targetX + (e.clientX - lastPX) * worldPerPx,
+                           -ROAD_W / 2 + 0.8, ROAD_W / 2 - 0.8);
+    lastPX = e.clientX;
+  }
 });
-addEventListener('pointerup', () => { dragging = false; cv.classList.remove('dragging'); });
+addEventListener('pointerup', e => {
+  if (controls === 'touch' && thumbPid === e.pointerId) {
+    // Reset floating thumbstick
+    thumbSteer = 0; thumbPid = null;
+    $('thumbKnob').style.transform = 'translate(-50%,-50%)';
+    $('thumb').style.left = '';
+    $('thumb').style.top = '';
+    $('thumb').style.right = '22px';
+    $('thumb').style.bottom = 'calc(38px + env(safe-area-inset-bottom, 0px))';
+    $('thumb').style.opacity = '.5';
+  } else {
+    dragging = false; cv.classList.remove('dragging');
+  }
+});
+addEventListener('pointercancel', e => {
+  if (controls === 'touch' && thumbPid === e.pointerId) {
+    // Reset floating thumbstick
+    thumbSteer = 0; thumbPid = null;
+    $('thumbKnob').style.transform = 'translate(-50%,-50%)';
+    $('thumb').style.left = '';
+    $('thumb').style.top = '';
+    $('thumb').style.right = '22px';
+    $('thumb').style.bottom = 'calc(38px + env(safe-area-inset-bottom, 0px))';
+    $('thumb').style.opacity = '.5';
+  } else {
+    dragging = false; cv.classList.remove('dragging');
+  }
+});
 addEventListener('keydown', e => { keys[e.key] = true; });
 addEventListener('keyup',   e => { keys[e.key] = false; });
-
-$('thumb').addEventListener('pointerdown', e => {
-  $('thumb').setPointerCapture(e.pointerId);
-  thumbPid = e.pointerId;
-  const rect = $('thumb').getBoundingClientRect();
-  const dx = e.clientX - (rect.left + rect.width / 2);
-  thumbSteer = clamp(dx / 44, -1, 1);
-  $('thumbKnob').style.transform = 'translate(calc(-50% + ' + (thumbSteer * 38) + 'px), -50%)';
-});
-$('thumb').addEventListener('pointermove', e => {
-  if (thumbPid !== e.pointerId) return;
-  const rect = $('thumb').getBoundingClientRect();
-  const dx = e.clientX - (rect.left + rect.width / 2);
-  thumbSteer = clamp(dx / 44, -1, 1);
-  $('thumbKnob').style.transform = 'translate(calc(-50% + ' + (thumbSteer * 38) + 'px), -50%)';
-});
-$('thumb').addEventListener('pointerup', e => {
-  if (thumbPid !== e.pointerId) return;
-  thumbSteer = 0; thumbPid = null;
-  $('thumbKnob').style.transform = 'translate(-50%,-50%)';
-});
-$('thumb').addEventListener('pointercancel', e => {
-  if (thumbPid !== e.pointerId) return;
-  thumbSteer = 0; thumbPid = null;
-  $('thumbKnob').style.transform = 'translate(-50%,-50%)';
-});
 
 // ------------------------------------------------- flow
 function startLevel() {
