@@ -68,9 +68,10 @@ function buildLevel(L) {
       const cnt = Math.max(2, Math.ceil(expected * rand(0.35, 0.65) *
                                         Math.pow(ratio, 0.6)));
       const ex = rand(-ROAD_W / 2 + 2.2, ROAD_W / 2 - 2.2);
+      const charKeys = ['knight', 'barbarian', 'rogue', 'mage', 'hooded'];
       enemies.push(Object.assign(
         makeCrowd(ex, z, cnt, PALETTE[pi % PALETTE.length]),
-        { sprite: 'f' + (1 + (pi % 8)), radius: 1.6 + Math.sqrt(cnt) * 0.5, boss: false, dead: false,
+        { sprite: charKeys[pi % 5], radius: 1.6 + Math.sqrt(cnt) * 0.5, boss: false, dead: false,
           count0: cnt, tier, pow: ePow, lvl: eLvl, gear: gearColor(eLvl) }));
       pi++;
       expected = Math.max(1, expected - Math.ceil(cnt / ratio));

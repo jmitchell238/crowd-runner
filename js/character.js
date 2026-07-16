@@ -39,10 +39,10 @@ function seg(color, w, x0, y0, x1, y1) {
   ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
 }
 
-function drawSprite(img, col, row, sx, sy, dh) {
+function drawSprite(img, walkFrame, row, sx, sy, dh) {
   const dw = dh;
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(img, col * 16, row * 16, 16, 16, Math.round(sx - dw / 2), Math.round(sy - dh), Math.round(dw), Math.round(dh));
+  ctx.drawImage(img, walkFrame * SPRITE_FRAME, row * SPRITE_FRAME, SPRITE_FRAME, SPRITE_FRAME, Math.round(sx - dw / 2), Math.round(sy - dh * 0.92), Math.round(dw), Math.round(dh));
 }
 
 function drawWeapon(u, tier) {         // drawn in a translated/rotated frame
@@ -68,13 +68,15 @@ function drawWeapon(u, tier) {         // drawn in a translated/rotated frame
   }
 }
 
-function drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear, img, facingCol) {
+function drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear, img, facingCol, tint) {
   if (img && spriteReady(img)) {
-    const walkRow = running ? Math.floor(phase / (Math.PI / 2)) % 4 : 0;
+    const walkFrame = running ? Math.floor(phase / (Math.PI / 4)) % 8 : 0;
+    const row = facingCol === 0 ? SPRITE_ROW_FRONT : SPRITE_ROW_BACK;
+    const spriteImg = tint ? tintedSheet(img, tint) : img;
     // shadow
     ctx.fillStyle = 'rgba(0,0,0,.22)';
     ctx.fillRect(Math.round(sx - u * .32), Math.round(sy), Math.round(u * .64), Math.round(u * .11));
-    drawSprite(img, facingCol, walkRow, sx, sy, u * 1.5);
+    drawSprite(spriteImg, walkFrame, row, sx, sy, u * 2.1);
     return;
   }
   if (u < 1.4) {
@@ -116,19 +118,21 @@ function drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear, img
   }
 }
 
-function drawPerson(sx, sy, u, color, dark, phase, running, tier, gear, img, facingCol) {
+function drawPerson(sx, sy, u, color, dark, phase, running, tier, gear, img, facingCol, tint) {
   // Sprite rendering (both graphics modes)
   if (img && spriteReady(img)) {
-    const walkRow = running ? Math.floor(phase / (Math.PI / 2)) % 4 : 0;
+    const walkFrame = running ? Math.floor(phase / (Math.PI / 4)) % 8 : 0;
+    const row = facingCol === 0 ? SPRITE_ROW_FRONT : SPRITE_ROW_BACK;
+    const spriteImg = tint ? tintedSheet(img, tint) : img;
     // shadow
     ctx.fillStyle = 'rgba(0,0,0,.22)';
     ctx.beginPath(); ctx.ellipse(sx, sy, u * .32, u * .11, 0, 0, 7); ctx.fill();
-    drawSprite(img, facingCol, walkRow, sx, sy, u * 1.5);
+    drawSprite(spriteImg, walkFrame, row, sx, sy, u * 2.1);
     return;
   }
   // Fallback: procedural rendering
   if (gfx === 'pixel') {
-    drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear);
+    drawPersonPixel(sx, sy, u, color, dark, phase, running, tier, gear, img, facingCol, tint);
     return;
   }
   if (u < 1.4) {                      // too far away: a simple dot
@@ -218,13 +222,20 @@ function drawBossFigure(e, fighting) {
 
   // Sprite rendering (if available)
   if (e.type.sprite) {
-    const img = SPRITES['bosses.' + e.type.sprite];
+    let img;
+    if (e.type.sprite.includes('@')) {
+      const [key, group] = e.type.sprite.split('@');
+      img = SPRITES[group + '.' + key];
+    } else {
+      img = SPRITES['bosses.' + e.type.sprite];
+    }
     if (spriteReady(img)) {
       // shadow
       ctx.fillStyle = 'rgba(0,0,0,.28)';
       ctx.beginPath(); ctx.ellipse(sx, sy, w * .85, h * .045, 0, 0, 7); ctx.fill();
-      const walkRow = Math.floor(tick * (fighting ? 9 : 2)) % 4;
-      drawSprite(img, 0, walkRow, sx, sy, bossHeight(e) * u * 1.6);
+      const walkFrame = Math.floor(tick * (fighting ? 9 : 2)) % 8;
+      const tintedImg = tintedSheet(img, e.color);
+      drawSprite(tintedImg, walkFrame, SPRITE_ROW_FRONT, sx, sy, bossHeight(e) * u * 1.6);
       return;
     }
   }

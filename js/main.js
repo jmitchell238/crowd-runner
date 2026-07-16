@@ -299,10 +299,10 @@ function draw() {
     for (const m of e.members) {
       const p = project(m.x, 0, m.z);
       if (!p) continue;
-      const img = e.sprite ? SPRITES['foes.' + e.sprite] : null;
+      const img = e.sprite ? SPRITES['chars.' + e.sprite] : null;
       q.push({ z: m.z, f: () => drawPerson(p[0], p[1], p[2], e.shades[m.tint], e.dark,
                                            m.phase + tick * (fighting ? 14 : 2.2), fighting,
-                                           e.tier || 0, e.gear, img, 0) });
+                                           e.tier || 0, e.gear, img, 0, e.color) });
     }
     q.push({ z: e.z - 5, f: () => drawCrowdLabel(e, e.boss ? '☠ ' : '', 'Lv ' + e.lvl) });
   }
@@ -325,12 +325,14 @@ function draw() {
   if (player) {
     const vTier = visualTier();
     const gearC = gearColor(troopLevel());
-    const playerImg = SPRITES['skins.' + SKINS[skin].sprite];
+    const skinData = SKINS[skin];
+    const playerImg = SPRITES['chars.' + skinData.sprite];
+    const playerTint = skinData.tint || null;
     for (const m of player.members) {
       const p = project(m.x, 0, m.z);
       if (!p) continue;
       q.push({ z: m.z, f: () => drawPerson(p[0], p[1], p[2], player.shades[m.tint], player.dark,
-                                           m.phase + tick * 13, true, vTier, gearC, playerImg, 1) });
+                                           m.phase + tick * 13, true, vTier, gearC, playerImg, 1, playerTint) });
     }
     q.push({ z: player.z - 5, f: () => drawCrowdLabel(player, '', 'Lv ' + troopLevel()) });
   }

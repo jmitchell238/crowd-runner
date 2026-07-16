@@ -7,14 +7,14 @@ const PALETTE = ['#e0312f', '#9b2fd6', '#2fae4a', '#ff8c1a', '#e8d227', '#d62f9b
 const REBIRTH_LEVEL = 15;             // rebirth unlocks after beating this level
 
 const SKINS = [
-  {name:'Ninja', color:'#43b649', cost:0, sprite:'ninja'},
-  {name:'Rookie', color:'#ff8c1a', cost:2000, sprite:'rookie'},
-  {name:'Scout', color:'#3f9d8a', cost:5000, sprite:'scout'},
-  {name:'Monk', color:'#d6336c', cost:12000, sprite:'monk'},
-  {name:'Brawler', color:'#e8590c', cost:25000, sprite:'brawler'},
-  {name:'Elder', color:'#e03131', cost:50000, sprite:'elder'},
-  {name:'Shade', color:'#7048e8', cost:100000, sprite:'shade'},
-  {name:'Ranger', color:'#a9722d', cost:250000, sprite:'ranger'}
+  {name:'Knight', color:'#aeb9c4', cost:0, sprite:'knight'},
+  {name:'Barbarian', color:'#b98a5e', cost:2000, sprite:'barbarian'},
+  {name:'Rogue', color:'#5a8f5a', cost:5000, sprite:'rogue'},
+  {name:'Mage', color:'#4d7ad1', cost:12000, sprite:'mage'},
+  {name:'Hooded', color:'#6b5b8f', cost:25000, sprite:'hooded'},
+  {name:'Royal Knight', color:'#3b6fe0', cost:50000, sprite:'knight', tint:'#3b6fe0'},
+  {name:'War Chief', color:'#e03131', cost:100000, sprite:'barbarian', tint:'#e03131'},
+  {name:'Shadow Master', color:'#7048e8', cost:250000, sprite:'hooded', tint:'#7048e8'}
 ];
 
 // progress saved in localStorage
@@ -26,7 +26,7 @@ let controls = localStorage.getItem('ccr_controls') ||
   (('ontouchstart' in window) ? 'touch' : 'keyboard');
 let skin = parseInt(localStorage.getItem('ccr_skin') || '0', 10);
 let skinsOwned = JSON.parse(localStorage.getItem('ccr_skins') || '[0]');
-let gfx = localStorage.getItem('ccr_gfx') || 'pixel';
+let gfx = localStorage.getItem('ccr_gfx') || 'classic';
 const up = {
   weapon:    parseInt(localStorage.getItem('ccr_up_weapon')    || '0', 10),
   troops:    parseInt(localStorage.getItem('ccr_up_troops')    || '0', 10),
@@ -81,11 +81,11 @@ const SHOP_ITEMS = [
 ];
 // end-of-level bosses cycle through these; every 5th level is a MEGA boss
 const BOSS_TYPES = [
-  { name: 'CRAB',    color: '#e03131', sprite: 'crab' },
-  { name: 'FLAME',   color: '#ff6b35', sprite: 'flame' },
-  { name: 'BEAST',   color: '#a0522d', sprite: 'beast' },
-  { name: 'PHOENIX', color: '#ffa94d', sprite: 'phoenix' },
-  { name: 'FIEND',   color: '#9c36b5', sprite: 'fiend' },
+  { name: 'BONE KNIGHT',  color: '#aeb9c4', sprite: 'bonewarrior' },
+  { name: 'NECROMANCER',  color: '#7048e8', sprite: 'necromancer' },
+  { name: 'BONE SCOUT',   color: '#5a8f5a', sprite: 'bonescout' },
+  { name: 'BONE FIEND',   color: '#e03131', sprite: 'bonefiend' },
+  { name: 'WARLORD',      color: '#b9722d', sprite: 'barbarian@chars' },
 ];
 
 const richesMult   = () => 1 + up.riches * 0.2;
