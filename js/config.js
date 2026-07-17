@@ -1,4 +1,8 @@
 'use strict';
+// Keep CACHE in sw.js in sync: 'ccr-v' + version number
+const GAME_VERSION = '1.0.0';
+const GAME_VERSION_LABEL = 'v' + GAME_VERSION;
+
 // ------------------------------------------------- constants & saved state
 const ROAD_W = 10;                    // road width, world units
 const ROAD_HALF = ROAD_W / 2 - 0.45;  // members bunch up inside this

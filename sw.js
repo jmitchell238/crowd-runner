@@ -1,4 +1,4 @@
-const CACHE = 'ccr-v13';
+const CACHE = 'ccr-v14';
 
 const PRECACHE_URLS = [
   './',
