@@ -6,6 +6,10 @@ function formationOffset(i) {         // sunflower spiral around the leader
   return [Math.cos(a) * r, Math.sin(a) * r * 0.8];
 }
 
+function crowdHalfW(c) {               // visible half-width of a crowd
+  return Math.min(ROAD_HALF, 0.82 * Math.sqrt(Math.max(0, c.count - 1)) * 0.9 + 0.4);
+}
+
 function makeMember(x, z) {
   return { x, z, phase: rand(0, Math.PI * 2),
            jx: rand(-.14, .14), jz: rand(-.14, .14), tint: irand(0, 2) };

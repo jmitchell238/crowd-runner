@@ -115,11 +115,12 @@ function buildLevel(L) {
 
   // bonus walls after the finish line — smash as many as your leftovers allow
   bonusWalls = []; bonusMult = 1;
+  const skilledExpected = Math.max(1, Math.round(expected / Math.pow(0.93, nHazPlanned)));
   const leftover = fortress
-    ? Math.max(1, expected - Math.ceil(fortHP / (bRatio * 10)))
-    : Math.max(1, expected - Math.ceil(bossCnt / bRatio));
+    ? Math.max(1, skilledExpected - Math.ceil(fortHP / (bRatio * 10)))
+    : Math.max(1, skilledExpected - Math.ceil(bossCnt / bRatio));
   const MULTS = [2, 3, 4, 6, 10];
-  const FRACS = [0.4, 0.9, 1.5, 2.3, 3.4];
+  const FRACS = [0.7, 1.45, 2.3, 4.0, 11.5];
   let prevNeed = 0;
   for (let i = 0; i < MULTS.length; i++) {
     const need = Math.max(prevNeed + 1, Math.round(leftover * FRACS[i]));

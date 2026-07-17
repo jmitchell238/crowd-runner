@@ -155,10 +155,14 @@ function update(dt) {
 
   // weapon crates
   for (const cr of crates) {
-    if (cr.done || player.z < cr.z) continue;
-    cr.done = true;
-    if (Math.abs(player.x - cr.x) < 1.9) {
+    if (cr.done) continue;
+    const hw = crowdHalfW(player);
+    const d = 1 + 0.7 * hw;
+    if (player.z - cr.z > d) { cr.done = true; continue; }
+    if (cr.z > player.z + d) continue;
+    if (Math.abs(cr.x - player.x) < hw + 0.8) {
       cr.taken = true;
+      cr.done = true;
       missionAdd('crates', 1);
       const before = visualTier();
       cratesTaken++;
@@ -176,13 +180,23 @@ function update(dt) {
   for (const h of hazards) {
     if (h.done || player.z < h.z - 1) continue;
     if (player.z > h.z + 2) { h.done = true; continue; }
-    const hit = h.type === 'saw'
-      ? Math.abs(player.x - hazardX(h)) < h.r + 0.8
-      : player.x > h.x0 - 0.6 && player.x < h.x1 + 0.6;
+    const hw = crowdHalfW(player);
+    const crowdLeft = player.x - hw, crowdRight = player.x + hw;
+    let hit = false, overlapWidth = 0;
+    if (h.type === 'saw') {
+      const hz = hazardX(h);
+      const hazLeft = hz - h.r, hazRight = hz + h.r;
+      hit = crowdRight > hazLeft && crowdLeft < hazRight;
+      if (hit) overlapWidth = Math.min(crowdRight, hazRight) - Math.max(crowdLeft, hazLeft);
+    } else {
+      hit = crowdRight > h.x0 && crowdLeft < h.x1;
+      if (hit) overlapWidth = Math.min(crowdRight, h.x1) - Math.max(crowdLeft, h.x0);
+    }
     if (hit) {
       h.done = true;
       const frac = h.type === 'saw' ? 0.25 : h.type === 'pit' ? 0.30 : 0.35;
-      const lose = Math.min(player.count - 1, Math.ceil(player.count * frac));
+      const overlapFrac = clamp(overlapWidth / (2 * hw), 0, 1);
+      const lose = Math.min(player.count - 1, Math.max(1, Math.ceil(player.count * frac * clamp(overlapFrac * 1.4, 0.25, 1))));
       if (lose > 0) {
         player.count -= lose;
         syncMembers(player, false);
@@ -198,7 +212,7 @@ function update(dt) {
     for (const e of enemies) {
       if (e.dead) continue;
       const closeZ = e.z - player.z < e.radius + 1.5 && e.z - player.z > -3;
-      const closeX = e.boss || Math.abs(e.x - player.x) < e.radius + 1.2;
+      const closeX = e.boss || Math.abs(e.x - player.x) < e.radius + 0.6 + crowdHalfW(player);
       if (closeZ && closeX) { battle = { enemy: e, accP: 0, accE: 0 }; break; }
     }
   }
