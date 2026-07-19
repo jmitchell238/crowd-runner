@@ -1,4 +1,4 @@
-const CACHE = 'ccr-v14';
+const CACHE = 'ccr-v15';
 
 const PRECACHE_URLS = [
   './',
@@ -56,7 +56,7 @@ self.addEventListener('fetch', event => {
   if (isNavigation) {
     // Network-first for navigations (index.html, etc.)
     event.respondWith(
-      fetch(event.request).then(response => {
+      fetch(event.request, { cache: 'no-store' }).then(response => {
         if (response && response.status === 200 && response.type === 'basic' && isSameOrigin) {
           const responseToCache = response.clone();
           caches.open(CACHE).then(cache => {
@@ -72,7 +72,7 @@ self.addEventListener('fetch', event => {
     // Stale-while-revalidate for same-origin GETs
     event.respondWith(
       caches.match(event.request).then(response => {
-        const fetchPromise = fetch(event.request).then(fetchResponse => {
+        const fetchPromise = fetch(event.request, { cache: 'no-store' }).then(fetchResponse => {
           if (
             fetchResponse &&
             fetchResponse.status === 200 &&

@@ -1,6 +1,6 @@
 'use strict';
 // Keep CACHE in sw.js in sync: 'ccr-v' + version number
-const GAME_VERSION = '1.0.0';
+const GAME_VERSION = '1.0.1';
 const GAME_VERSION_LABEL = 'v' + GAME_VERSION;
 
 // ------------------------------------------------- constants & saved state
